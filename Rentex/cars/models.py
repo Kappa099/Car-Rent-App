@@ -21,22 +21,18 @@ class CarPhoto(models.Model):
     def __str__(self):
         return f"Photo of {self.car.brand} {self.car.model}"
 
-    
+class Rental(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rentals')
+    car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='rentals')
+    days = models.PositiveIntegerField()
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[('active', 'Active'), ('returned', 'Returned'), ('cancelled', 'Cancelled')],
+        default='active'
+    )
 
-# def rent_car(request, car_id):
-#     car = Car.objects.get(id=car_id)
-#     renter = request.user
-#     days = int(request.POST.get('days', 1))
-#     total_price = car.daily_price * days
+    def __str__(self):
+        return f'{self.user.username} rented {self.car} for {self.days} days'
 
-#     rental = Rental.objects.create(
-#         user=renter,
-#         car=car,
-#         days=days,
-#         total_price=total_price
-#     )
-
-#     Notification.objects.create(
-#         user=car.owner,
-#         message=f'Your {car.brand} {car.model} has been rented by {renter.first_name} for {days} days.'
-#     )
