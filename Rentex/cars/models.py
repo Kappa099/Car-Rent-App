@@ -1,6 +1,5 @@
 from django.db import models
 from accounts.models import Notification
-from cars.models import Rental
 from accounts.models import User
 
 class Car(models.Model):
