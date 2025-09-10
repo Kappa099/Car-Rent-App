@@ -1,45 +1,112 @@
-from django.shortcuts import render
-from django.views import View
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponse
-from .models import Car, Rental, CarPhoto
-from accounts.models import Notification
-from rest_framework import generics
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from .serializers import RentalSerializer, CarPhotoSerializer, CarSerializer
-from rest_framework.generics import GenericAPIView
-from rest_framework.generics import ListCreateAPIView
+from django.shortcuts import get_object_or_404
+from django.core.mail import send_mail
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status, permissions
+from .models import Car, Rental, Notification
+from .serializers import RentalSerializer, CarSerializer
 
 
-class CarListCreateView(ListCreateAPIView):
-    queryset = Car.objects.all()
-    serializer_class = CarSerializer
-    permission_classes = [IsAuthenticated]
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+class IsOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return obj.owner == request.user
 
 
-# class RentCarView(LoginRequiredMixin, View):  #Later conver this into APIView, too early for now this is Django logic not DRF
-#     def post(self, request, car_id):
-#         car = get_object_or_404(Car, id=car_id)
-#         renter = request.user
-#         days = int(request.POST.get('days', 1))
-#         total_price = car.price * days
+class CarListApiView(APIView):
+    permission_classes = [permissions.AllowAny]
 
-#         rental = Rental.objects.create(
-#             user=renter,
-#             car=car,
-#             days=days,
-#             total_price=total_price
-#         )
+    def get(self, request):
+        cars = Car.objects.all()
+        serializer = CarSerializer(cars, many=True)
+        return Response(serializer.data)
 
-#         Notification.objects.create(
-#             user=car.owner,
-#             message=f'Your {car.brand} {car.model} has been rented by {renter.first_name} for {days} days.'
-#         )
 
-#         return HttpResponse("Car rented successfully!")
-    
+class CarListCreateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
+    def get(self, request):
+        cars = Car.objects.all()
+        serializer = CarSerializer(cars, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = CarSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(owner=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class CarRetrieveUpdateDestroyAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
+
+    def get_object(self, pk):
+        return get_object_or_404(Car, id=pk)
+
+    def get(self, request, pk):
+        car = self.get_object(pk)
+        serializer = CarSerializer(car)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        car = self.get_object(pk)
+        self.check_object_permissions(request, car)
+        serializer = CarSerializer(car, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    def delete(self, request, pk):
+        car = self.get_object(pk)
+        self.check_object_permissions(request, car)
+        car.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class RentCarView(APIView):  
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, car_id):
+        car = get_object_or_404(Car, id=car_id)
+        renter = request.user
+
+        try:
+            days = int(request.data.get('days', 1))
+            if days < 1:
+                raise ValueError
+        except ValueError:
+            return Response({"error": "Minimum day must be 1"}, status=status.HTTP_400_BAD_REQUEST)
+
+        total_price = car.price * days
+
+        serializer = RentalSerializer(data={
+            "user": renter.id,
+            "car": car.id,
+            "days": days,
+            "total_price": total_price
+        })
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        Notification.objects.create(
+            user=car.owner,
+            message=f'Your {car.brand} {car.model} has been rented by {renter.first_name} for {days} days.'
+        )
+
+        if car.owner.email:
+            try:
+                send_mail(
+                    subject="Your car was rented!",
+                    message=f"Hello {car.owner.first_name},\n\n"
+                            f"Your {car.brand} {car.model} has been rented by {renter.first_name} for {days} days.\n"
+                            f"Total price: {total_price}\n\n"
+                            "Best regards,\nRentex Team",
+                    from_email=None,  
+                    recipient_list=[car.owner.email],
+                    fail_silently=False,
+                )
+            except Exception as e:
+                print("Email failed:", e)
+
+        return Response({"message": "Car rented successfully!"}, status=status.HTTP_201_CREATED)

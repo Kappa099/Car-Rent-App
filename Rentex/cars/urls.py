@@ -3,5 +3,7 @@ from .views import *
 
 
 urlpatterns = [
-    path('', CarListCreateView.as_view(), name='car_list_create')
+    path('', CarListApiView.as_view()),
+    path('create/', CarListCreateView.as_view()),
+    path('cars/<int:pk>', CarRetrieveUpdateDestroyAPIView.as_view())
 ]
