@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     'accounts',
     'cars',
     'rest_framework',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
+
 ]
 
 MIDDLEWARE = [
@@ -143,3 +146,20 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = config('GMAIL_EMAIL')
 EMAIL_HOST_PASSWORD = config('GMAIL_APP_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+from datetime import timedelta
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME" : timedelta(days=2),
+    "REFRESH_TOKEN_LIFETIME" : timedelta(days=100),
+    "ROTATE_REFRESH_TOKEN": False,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_HEADER_TYPES" : ("Bearer"),
+    
+}
