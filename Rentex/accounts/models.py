@@ -7,7 +7,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
 
     USERNAME_FIELD = 'phone'
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'phone']
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
 
     groups = models.ManyToManyField(
         Group,
