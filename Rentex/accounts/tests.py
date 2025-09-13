@@ -16,7 +16,7 @@ class AuthTests(APITestCase):
             "email": "test@gmail.com",
             "first_name": "Vako",
             "last_name": "Kapanadze",
-            "phone": "599534092",
+            "username": "599534092",  # now using username instead of phone
             "password": "StrongPassword!",
             "confirm_password": "StrongPassword!"
         }
@@ -25,13 +25,13 @@ class AuthTests(APITestCase):
         response = self.client.post(self.register_url, self.user_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(User.objects.count(), 1)
-        self.assertEqual(User.objects.get().phone, "599534092")
+        self.assertEqual(User.objects.get().username, "599534092")
 
     def test_login_user(self):
         # Register first
         self.client.post(self.register_url, self.user_data, format='json')
         login_data = {
-            "phone": "599534092",
+            "username": "599534092",  # login uses username
             "password": "StrongPassword!"
         }
         response = self.client.post(self.login_url, login_data, format='json')
@@ -44,7 +44,7 @@ class AuthTests(APITestCase):
         self.client.post(self.register_url, self.user_data, format='json')
         # Login
         login_data = {
-            "phone": "599534092",
+            "username": "599534092",
             "password": "StrongPassword!"
         }
         login_response = self.client.post(self.login_url, login_data, format='json')

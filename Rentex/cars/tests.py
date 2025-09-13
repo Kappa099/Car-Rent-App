@@ -24,7 +24,6 @@ class CarRentalTests(APITestCase):
             last_name="User"
         )
 
-        # Car owned by self.owner
         self.car = Car.objects.create(
             brand="Toyota",
             model="Corolla",
@@ -34,7 +33,7 @@ class CarRentalTests(APITestCase):
         )
 
         # URLs
-        self.car_list_url = reverse("car-list-create")   # must match urls.py name
+        self.car_list_url = reverse("car-list-create")  
         self.car_detail_url = reverse("car-detail", args=[self.car.id])
         self.rent_car_url = reverse("rent-car", args=[self.car.id])
 
@@ -65,11 +64,11 @@ class CarRentalTests(APITestCase):
         self.assertEqual(response.data["brand"], "Toyota")
 
     def test_update_car_only_by_owner(self):
-        self.authenticate(self.renter)  # renter should fail
+        self.authenticate(self.renter) 
         response = self.client.put(self.car_detail_url, {"brand": "Honda"}, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        self.authenticate(self.owner)  # owner can update
+        self.authenticate(self.owner) 
         response = self.client.put(self.car_detail_url, {"brand": "Honda"}, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["brand"], "Honda")

@@ -8,7 +8,7 @@ class CarSerializer(serializers.ModelSerializer):
         model = Car
         fields = '__all__'
         read_only_fields = ['owner']
-    
+
 class CarPhotoSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -18,9 +18,9 @@ class CarPhotoSerializer(serializers.ModelSerializer):
 
 class RentalSerializer(serializers.ModelSerializer):
     car = CarSerializer(read_only=True)
+    user = serializers.StringRelatedField(read_only=True) 
 
     class Meta:
         model = Rental
         fields = '__all__'
         read_only_fields = ['created_at']
-
