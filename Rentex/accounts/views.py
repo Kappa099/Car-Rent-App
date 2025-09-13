@@ -45,7 +45,6 @@ class LogoutView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Current logged-in user
 class CurrentUserView(APIView):
     permission_classes = [IsAuthenticated]
 
