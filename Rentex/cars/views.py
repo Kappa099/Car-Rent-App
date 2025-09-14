@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from .models import Car, Rental, Notification
-from .serializers import RentalSerializer, CarSerializer
+from .serializers import RentalSerializer, CarSerializer, CarPhotoSerializer, CarPhoto
 
 
 class IsOwner(permissions.BasePermission):
@@ -23,19 +23,22 @@ class CarListApiView(APIView):
         return Response(serializer.data)
 
 
+from .models import Car, CarPhoto
+from .serializers import CarSerializer, CarPhotoSerializer
+
 class CarListCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
-    def get(self, request):
-        cars = Car.objects.all()
-        serializer = CarSerializer(cars, many=True)
-        return Response(serializer.data)
 
     def post(self, request):
         serializer = CarSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(owner=request.user)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        car = serializer.save(owner=request.user)
+
+        image = request.FILES.get("image")
+        if image:
+            CarPhoto.objects.create(car=car, image=image)
+
+        return Response(CarSerializer(car).data, status=status.HTTP_201_CREATED)
 
 
 class CarRetrieveUpdateDestroyAPIView(APIView):
