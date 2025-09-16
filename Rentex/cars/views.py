@@ -22,17 +22,13 @@ class CarListApiView(APIView):
         serializer = CarSerializer(cars, many=True)
         return Response(serializer.data)
 
-
-from .models import Car, CarPhoto
-from .serializers import CarSerializer, CarPhotoSerializer
-
 class CarListCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        serializer = CarSerializer(data=request.data)
+        serializer = CarSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
-        car = serializer.save(owner=request.user)
+        car = serializer.save()
 
         image = request.FILES.get("image")
         if image:
