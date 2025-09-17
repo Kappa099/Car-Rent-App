@@ -1,6 +1,12 @@
 from rest_framework import serializers
-from .models import Car, CarPhoto, Rental
+from .models import Car, CarPhoto, Rental, Review
 
+class ReviewSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = Review
+        fields = ["user", "rating", "created_at"]
 
 class CarPhotoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -8,15 +14,18 @@ class CarPhotoSerializer(serializers.ModelSerializer):
         fields = ["car", "image", "uploaded_at"]
         read_only_fields = ["uploaded_at"]
 
-
 class CarSerializer(serializers.ModelSerializer):
     owner = serializers.StringRelatedField(read_only=True)
     owner_phone = serializers.CharField(source="owner.phone", read_only=True)
     photos = serializers.SerializerMethodField()
-    
+    reviews = ReviewSerializer(many=True, read_only=True)
+
     images = serializers.ListField(
         child=serializers.ImageField(), write_only=True, required=False
     )
+
+    likes_count = serializers.IntegerField(source="likes.count", read_only=True)
+    is_liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Car
@@ -27,10 +36,17 @@ class CarSerializer(serializers.ModelSerializer):
             return [photo.image.url for photo in obj.photos.all()]
         return ["/media/cars/photos/default-car.jpg"]
 
+    def get_is_liked(self, obj):
+        request = self.context.get("request")
+        if request and request.user.is_authenticated:
+            return obj.likes.filter(id=request.user.id).exists()
+        return False
+
     def create(self, validated_data):
         request = self.context.get("request")
         user = request.user
         validated_data["owner"] = user
+
         images = validated_data.pop("images", [])
         car = Car.objects.create(**validated_data)
 
@@ -39,12 +55,11 @@ class CarSerializer(serializers.ModelSerializer):
 
         return car
 
-
 class RentalSerializer(serializers.ModelSerializer):
     car = CarSerializer(read_only=True)
     user = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = Rental
-        fields = '__all__'
-        read_only_fields = ['created_at']
+        fields = "__all__"
+        read_only_fields = ["created_at"]
