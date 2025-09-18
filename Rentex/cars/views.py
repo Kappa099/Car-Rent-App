@@ -1,11 +1,11 @@
 from django.shortcuts import get_object_or_404
-from django.core.mail import send_mail
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from .models import Car, Rental, CarPhoto, Review
 from .serializers import CarSerializer, RentalSerializer, ReviewSerializer
 from django.db import models
+from django.db.models import Count
 
 class IsOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -13,13 +13,12 @@ class IsOwner(permissions.BasePermission):
             return True
         return obj.owner == request.user
 
-# --- Car List with filters and sorting ---
+
 class CarListApiView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
         cars = Car.objects.all()
-
         city = request.GET.get("city")
         year_min = request.GET.get("year_min")
         year_max = request.GET.get("year_max")
@@ -36,14 +35,14 @@ class CarListApiView(APIView):
             cars = cars.filter(capacity=capacity)
 
         if sort == "popular":
-            cars = cars.annotate(likes_count=models.Count("likes")).order_by("-likes_count")
+            cars = cars.annotate(total_likes=Count("likes")).order_by("-total_likes")
         else:
             cars = cars.order_by("-created_at")
 
         serializer = CarSerializer(cars, many=True, context={"request": request})
         return Response(serializer.data)
 
-# --- Car Create ---
+
 class CarListCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -53,9 +52,12 @@ class CarListCreateView(APIView):
         car = serializer.save()
         return Response(CarSerializer(car, context={"request": request}).data, status=status.HTTP_201_CREATED)
 
-# --- Car Detail, Update, Delete ---
+
 class CarRetrieveUpdateDestroyAPIView(APIView):
-    permission_classes = [permissions.IsAuthenticated, IsOwner]
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated(), IsOwner()]
 
     def get_object(self, pk):
         return get_object_or_404(Car, id=pk)
@@ -79,7 +81,7 @@ class CarRetrieveUpdateDestroyAPIView(APIView):
         car.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-# --- Rent Car ---
+
 class RentCarView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -104,17 +106,15 @@ class RentCarView(APIView):
         })
         serializer.is_valid(raise_exception=True)
         serializer.save()
-
         return Response({"message": "Car rented successfully!"}, status=status.HTTP_201_CREATED)
 
-# --- Like Car ---
+
 class LikeCarView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, car_id):
         car = get_object_or_404(Car, id=car_id)
         user = request.user
-
         if car.likes.filter(id=user.id).exists():
             car.likes.remove(user)
             return Response({"message": "Car unliked."}, status=status.HTTP_200_OK)
@@ -122,7 +122,7 @@ class LikeCarView(APIView):
             car.likes.add(user)
             return Response({"message": "Car liked!"}, status=status.HTTP_200_OK)
 
-# --- Review Car (1-5 stars) ---
+
 class ReviewCarView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -141,5 +141,4 @@ class ReviewCarView(APIView):
         review, created = Review.objects.update_or_create(
             car=car, user=user, defaults={"rating": rating}
         )
-
         return Response({"message": "Rating submitted", "rating": rating}, status=status.HTTP_200_OK)

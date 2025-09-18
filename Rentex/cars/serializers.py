@@ -3,10 +3,10 @@ from .models import Car, CarPhoto, Rental, Review
 
 class ReviewSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
-
     class Meta:
         model = Review
         fields = ["user", "rating", "created_at"]
+
 
 class CarPhotoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,16 +14,15 @@ class CarPhotoSerializer(serializers.ModelSerializer):
         fields = ["car", "image", "uploaded_at"]
         read_only_fields = ["uploaded_at"]
 
+
 class CarSerializer(serializers.ModelSerializer):
     owner = serializers.StringRelatedField(read_only=True)
     owner_phone = serializers.CharField(source="owner.phone", read_only=True)
     photos = serializers.SerializerMethodField()
     reviews = ReviewSerializer(many=True, read_only=True)
-
     images = serializers.ListField(
         child=serializers.ImageField(), write_only=True, required=False
     )
-
     likes_count = serializers.IntegerField(source="likes.count", read_only=True)
     is_liked = serializers.SerializerMethodField()
 
@@ -49,11 +48,10 @@ class CarSerializer(serializers.ModelSerializer):
 
         images = validated_data.pop("images", [])
         car = Car.objects.create(**validated_data)
-
         for img in images:
             CarPhoto.objects.create(car=car, image=img)
-
         return car
+
 
 class RentalSerializer(serializers.ModelSerializer):
     car = CarSerializer(read_only=True)
