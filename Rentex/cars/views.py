@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from .models import Car, Rental, CarPhoto, Review
-from .serializers import CarSerializer, RentalSerializer, ReviewSerializer
+from .serializers import CarSerializer, RentalSerializer, ReviewSerializer, CarFeaturesSerializer
 from django.db import models
 from django.db.models import Count
 
@@ -42,6 +42,23 @@ class CarListApiView(APIView):
         serializer = CarSerializer(cars, many=True, context={"request": request})
         return Response(serializer.data)
 
+class CarPhotoUploadView(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
+
+    def post(self, request, car_id):
+        car = get_object_or_404(Car, id=car_id)
+        self.check_object_permissions(request, car)
+
+        images = request.FILES.getlist("images")
+        if not images:
+            return Response({"error": "No images provided"}, status=400)
+
+        photos = []
+        for img in images:
+            photo = CarPhoto.objects.create(car=car, image=img)
+            photos.append(photo.image.url)
+
+        return Response({"photos": photos}, status=201)
 
 class CarListCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -142,3 +159,19 @@ class ReviewCarView(APIView):
             car=car, user=user, defaults={"rating": rating}
         )
         return Response({"message": "Rating submitted", "rating": rating}, status=status.HTTP_200_OK)
+    
+class UpdateCarFeaturesView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, car_id):
+        car = get_object_or_404(Car, id=car_id)
+
+        # Only owner can update features
+        if car.owner != request.user:
+            return Response({"error": "Not allowed"}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = CarFeaturesSerializer(car, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

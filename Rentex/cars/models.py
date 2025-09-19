@@ -20,14 +20,18 @@ class Car(models.Model):
         ("mestia", "Mestia"),
     ]
 
-    brand = models.CharField(max_length=50)
-    model = models.CharField(max_length=50)
-    year = models.PositiveIntegerField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    capacity = models.PositiveIntegerField(default=4)
-    transmission = models.CharField(max_length=20, choices=TRANSMISSION_CHOICES, default="automatic")
-    location = models.CharField(max_length=50, choices=CITY_CHOICES, default="tbilisi")
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="cars")
+    brand = models.CharField(max_length=100)
+    model = models.CharField(max_length=100)
+    year = models.IntegerField()
+    price = models.FloatField()
+    capacity = models.IntegerField()
+    transmission = models.CharField(max_length=50)
+    location = models.CharField(max_length=100)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    vehicle_features = models.JSONField(default=list)
+    device_connectivity = models.JSONField(default=list)
+    convenience = models.JSONField(default=list)
+    additional_features = models.JSONField(default=list)
 
     created_at = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(User, related_name="liked_cars", blank=True)

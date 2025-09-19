@@ -61,3 +61,9 @@ class RentalSerializer(serializers.ModelSerializer):
         model = Rental
         fields = "__all__"
         read_only_fields = ["created_at"]
+
+
+class CarFeaturesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Car
+        fields = ['vehicle_features', 'device_connectivity', 'convenience', 'additional_features']

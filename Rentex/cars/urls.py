@@ -8,4 +8,6 @@ urlpatterns = [
     path("<int:car_id>/rent/", RentCarView.as_view(), name="car-rent"),
     path("<int:car_id>/like/", LikeCarView.as_view(), name="car-like"),
     path("<int:car_id>/review/", ReviewCarView.as_view(), name="car-review"),
+    path("<int:car_id>/upload-photo/", CarPhotoUploadView.as_view(), name="car-photo-upload"),
+    path("<int:car_id>/update-features/", UpdateCarFeaturesView.as_view(), name="update-car-features"),
 ]
