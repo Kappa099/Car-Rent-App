@@ -6,6 +6,9 @@ from .models import Car, Rental, CarPhoto, Review
 from .serializers import CarSerializer, RentalSerializer, ReviewSerializer, CarFeaturesSerializer
 from django.db import models
 from django.db.models import Count
+from accounts.models import Notification
+from datetime import datetime
+
 
 class IsOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -113,18 +116,33 @@ class RentCarView(APIView):
         except ValueError:
             return Response({"error": "Minimum day must be 1"}, status=status.HTTP_400_BAD_REQUEST)
 
+        pickup_date_str = request.data.get("pickup_date")
+        try:
+            pickup_date = datetime.strptime(pickup_date_str, "%Y-%m-%d").date() if pickup_date_str else datetime.today().date()
+        except ValueError:
+            return Response({"error": "Invalid pickup_date format. Use YYYY-MM-DD"}, status=status.HTTP_400_BAD_REQUEST)
+
         total_price = car.price * days
 
-        serializer = RentalSerializer(data={
-            "user": renter.id,
-            "car": car.id,
-            "days": days,
-            "total_price": total_price
-        })
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response({"message": "Car rented successfully!"}, status=status.HTTP_201_CREATED)
+        rental = Rental.objects.create(
+            user=renter,
+            car=car,
+            days=days,
+            total_price=total_price,
+            pickup_date=pickup_date
+        )
 
+        # Create notification for the owner
+        Notification.objects.create(
+            user=car.owner,
+            message=(
+                f"{renter.get_full_name()} ({renter.username}) rented your car "
+                f"{car.brand} {car.model} for {days} days starting {pickup_date}. "
+                f"Total: {total_price}₾"
+            )
+        )
+
+        return Response({"message": "Car rented successfully!", "rental_id": rental.id}, status=status.HTTP_201_CREATED)
 
 class LikeCarView(APIView):
     permission_classes = [permissions.IsAuthenticated]

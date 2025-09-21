@@ -3,6 +3,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .serializers import RegisterSerializer, LoginSerializer, LogoutSerializer, UserSerializer, NotificationSerializer
+from .serializers import UserProfileSerializer
+from django.shortcuts import get_object_or_404
+from .models import User
 
 # Registration
 class RegisterView(APIView):
@@ -50,4 +53,17 @@ class CurrentUserView(APIView):
 
     def get(self, request):
         serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+
+
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id=None):
+        if user_id:
+            user = get_object_or_404(User, id=user_id)
+        else:
+            user = request.user 
+
+        serializer = UserProfileSerializer(user, context={"request": request})
         return Response(serializer.data)

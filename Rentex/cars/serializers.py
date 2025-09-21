@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Car, CarPhoto, Rental, Review
 
+
 class ReviewSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
     class Meta:
@@ -56,14 +57,17 @@ class CarSerializer(serializers.ModelSerializer):
 class RentalSerializer(serializers.ModelSerializer):
     car = CarSerializer(read_only=True)
     user = serializers.StringRelatedField(read_only=True)
+    renter_name = serializers.CharField(source="user.get_full_name", read_only=True)
+    renter_phone = serializers.CharField(source="user.username", read_only=True)  # since phone is username
 
     class Meta:
         model = Rental
         fields = "__all__"
-        read_only_fields = ["created_at"]
-
+        read_only_fields = ["created_at", "status", "total_price"]
 
 class CarFeaturesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Car
         fields = ['vehicle_features', 'device_connectivity', 'convenience', 'additional_features']
+
+

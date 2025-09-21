@@ -4,6 +4,9 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from .models import User, Notification
+from cars.models import Car, Rental
+from cars.serializers import CarSerializer, RentalSerializer
+
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -86,3 +89,13 @@ class NotificationSerializer(serializers.ModelSerializer):
         model = Notification
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    owned_cars = CarSerializer(many=True, read_only=True, source="car_set")
+    rentals = RentalSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = User
+        fields = ["id", "username", "email", "first_name", "last_name", "owned_cars", "rentals"]

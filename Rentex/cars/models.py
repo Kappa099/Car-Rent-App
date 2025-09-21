@@ -1,5 +1,6 @@
 from django.db import models
 from accounts.models import User
+from django.utils import timezone
 
 class Car(models.Model):
     TRANSMISSION_CHOICES = [
@@ -53,9 +54,11 @@ class CarPhoto(models.Model):
         return f"Photo of {self.car.brand} {self.car.model}"
 
 
+
 class Rental(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rentals')
     car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='rentals')
+    pickup_date = models.DateField(default=timezone.now)  # <-- new field
     days = models.PositiveIntegerField()
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
