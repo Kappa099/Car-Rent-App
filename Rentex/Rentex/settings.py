@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'corsheaders',  # <-- Add this for CORS
     'accounts',
     'cars',
+    'contacts',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -96,6 +97,7 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = config('GMAIL_EMAIL')
 EMAIL_HOST_PASSWORD = config('GMAIL_APP_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

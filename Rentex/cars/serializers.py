@@ -18,6 +18,7 @@ class CarPhotoSerializer(serializers.ModelSerializer):
 
 class CarSerializer(serializers.ModelSerializer):
     owner = serializers.StringRelatedField(read_only=True)
+    owner_id = serializers.IntegerField(source="owner.id", read_only=True)
     owner_phone = serializers.CharField(source="owner.phone", read_only=True)
     photos = serializers.SerializerMethodField()
     reviews = ReviewSerializer(many=True, read_only=True)

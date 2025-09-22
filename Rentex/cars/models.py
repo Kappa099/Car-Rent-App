@@ -24,10 +24,10 @@ class Car(models.Model):
     brand = models.CharField(max_length=100)
     model = models.CharField(max_length=100)
     year = models.IntegerField()
-    price = models.FloatField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     capacity = models.IntegerField()
-    transmission = models.CharField(max_length=50)
-    location = models.CharField(max_length=100)
+    transmission = models.CharField(max_length=50, choices=TRANSMISSION_CHOICES)
+    location = models.CharField(max_length=100, choices=CITY_CHOICES)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     vehicle_features = models.JSONField(default=list)
     device_connectivity = models.JSONField(default=list)
@@ -57,7 +57,7 @@ class CarPhoto(models.Model):
 
 class Rental(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rentals')
-    car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='rentals')
+    car = models.ForeignKey(Car, on_delete=models.SET_NULL, null=True, related_name='rentals')
     pickup_date = models.DateField(default=timezone.now)  # <-- new field
     days = models.PositiveIntegerField()
     total_price = models.DecimalField(max_digits=10, decimal_places=2)

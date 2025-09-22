@@ -8,6 +8,8 @@ from django.db import models
 from django.db.models import Count
 from accounts.models import Notification
 from datetime import datetime
+from django.core.mail import send_mail
+from django.conf import settings
 
 
 class IsOwner(permissions.BasePermission):
@@ -102,6 +104,8 @@ class CarRetrieveUpdateDestroyAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+
+
 class RentCarView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -114,13 +118,20 @@ class RentCarView(APIView):
             if days < 1:
                 raise ValueError
         except ValueError:
-            return Response({"error": "Minimum day must be 1"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Minimum rental duration is 1 day"}, status=status.HTTP_400_BAD_REQUEST)
 
         pickup_date_str = request.data.get("pickup_date")
         try:
-            pickup_date = datetime.strptime(pickup_date_str, "%Y-%m-%d").date() if pickup_date_str else datetime.today().date()
+            pickup_date = (
+                datetime.strptime(pickup_date_str, "%Y-%m-%d").date()
+                if pickup_date_str
+                else datetime.today().date()
+            )
         except ValueError:
             return Response({"error": "Invalid pickup_date format. Use YYYY-MM-DD"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if pickup_date < datetime.today().date():
+            return Response({"error": "Pickup date cannot be in the past"}, status=status.HTTP_400_BAD_REQUEST)
 
         total_price = car.price * days
 
@@ -132,17 +143,27 @@ class RentCarView(APIView):
             pickup_date=pickup_date
         )
 
-        # Create notification for the owner
-        Notification.objects.create(
-            user=car.owner,
-            message=(
-                f"{renter.get_full_name()} ({renter.username}) rented your car "
-                f"{car.brand} {car.model} for {days} days starting {pickup_date}. "
-                f"Total: {total_price}₾"
-            )
+        # Create in-app notification
+        message = (
+            f"{renter.get_full_name()} ({renter.username}) rented your car "
+            f"{car.brand} {car.model} for {days} days starting {pickup_date}. "
+            f"Total: {total_price}₾"
         )
+        Notification.objects.create(user=car.owner, message=message)
 
-        return Response({"message": "Car rented successfully!", "rental_id": rental.id}, status=status.HTTP_201_CREATED)
+        if car.owner.email:
+            send_mail(
+                subject="Your car has been rented 🚗",
+                message=message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[car.owner.email],
+                fail_silently=False,
+            )
+
+        return Response(
+            {"message": "Car rented successfully!", "rental_id": rental.id},
+            status=status.HTTP_201_CREATED
+        )
 
 class LikeCarView(APIView):
     permission_classes = [permissions.IsAuthenticated]
