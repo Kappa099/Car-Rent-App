@@ -102,8 +102,15 @@ class NotificationSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     owned_cars = CarSerializer(many=True, read_only=True, source="car_set")
-    rentals = RentalSerializer(many=True, read_only=True)
+    rented_cars = serializers.SerializerMethodField()
+    rentals = RentalSerializer(many=True, read_only=True) 
+
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "first_name", "last_name", "owned_cars", "rentals"]
+        fields = ["id", "username", "email", "first_name", "last_name", "owned_cars", "rented_cars", "rentals"]
+
+    def get_rented_cars(self, obj):
+        rentals = obj.rentals.all() 
+        cars = [rental.car for rental in rentals if rental.car]  
+        return CarSerializer(cars, many=True, context=self.context).data
