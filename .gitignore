@@ -21,4 +21,7 @@ rad.json
 #Test results file
 TestResults.xml
 venv/
-.env/
+# Ignore .env files anywhere in the repo
+.env
+*/.env
+**/.env
