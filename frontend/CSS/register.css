@@ -1,0 +1,78 @@
+/* register.css */
+
+body {
+    font-family: 'Lato', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f8f8;
+}
+
+.form-container {
+    max-width: 400px;
+    margin: 100px auto;
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.form-container h2 {
+    font-size: 28px;
+    margin-bottom: 30px;
+    color: #1E2036;
+}
+
+.form-container input {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.form-container input:focus {
+    border-color: #FF8762;
+    outline: none;
+}
+
+.form-container button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    background-color: #FF8762;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.form-container button:hover {
+    background-color: #1E2036;
+}
+
+.form-container p {
+    font-size: 14px;
+    color: #000; 
+    margin-top: 15px;
+}
+
+.form-container a {
+    color: #FF8762;
+    text-decoration: none;
+}
+
+.form-container a:hover {
+    color: #1E2036;
+}
+
+/* Responsive */
+@media screen and (max-width: 500px) {
+    .form-container {
+        margin: 50px 20px;
+        padding: 30px;
+    }
+}

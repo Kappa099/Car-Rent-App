@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rent Car</title>
+    <link rel="stylesheet" href="css/rent.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="rent-container">
+        <h1>Rent Car</h1>
+
+        <div class="car-info">
+            <img id="car-photo" src="" alt="Car Image">
+            <h2 id="car-name"></h2>
+            <p><strong>Location:</strong> <span id="car-location"></span></p>
+            <p><strong>Price per day:</strong> <span id="car-price">0</span>₾</p>
+        </div>
+
+        <form id="rent-form">
+            <label for="pickup-date">Pickup Date:</label>
+            <input type="date" id="pickup-date" name="pickup_date" required>
+
+            <label for="days">Number of Days:</label>
+            <input type="number" id="days" name="days" min="1" value="1" required>
+
+            <p><strong>Total Price:</strong> <span id="total-price">0</span>₾</p>
+
+            <button type="submit">Rent Now</button>
+        </form>
+
+        <div id="message" class="message"></div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="JavaScript/common.js"></script>
+    <script src="JavaScript/loadHeaderFooter.js"></script>
+    <script src="JavaScript/rent.js"></script>
+</body>
+</html>

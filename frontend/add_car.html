@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Car - Rentex</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/cars.css">
+</head>
+<body>
+  <div id="header-placeholder"></div>
+
+  <h2>Add a New Car</h2>
+
+  <form id="carForm" enctype="multipart/form-data">
+    <input type="text" id="brand" name="brand" placeholder="Brand" required>
+    <input type="text" id="model" name="model" placeholder="Model" required>
+    <input type="number" id="year" name="year" placeholder="Year" required>
+    <input type="number" id="price" name="price" placeholder="Price" step="0.01" required>
+    <input type="file" id="images" name="images" accept="image/*" multiple required>
+    <button type="submit">Add Car</button>
+  </form>
+
+  <p id="message"></p>
+  <div id="footer-placeholder"></div>
+
+  <script src="JavaScript/common.js"></script>
+  <script src="JavaScript/logout.js"></script>
+  <script src="JavaScript/loadHeaderFooter.js"></script>
+  <script src="JavaScript/add_car.js"></script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    color: #ffffff;
+    z-index: 1000;
+}
+
+.header-container {
+    display: flex;
+    align-items: center;
+    padding: 4px 20px;
+    flex-wrap: wrap;
+    position: relative;
+    gap: 10px;
+}
+
+header .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+header .logo svg {
+    display: block;
+    max-height: 40px;
+}
+
+header .logo span {
+    font-size: 20px;
+    font-weight: bold;
+    font-family: 'Lato', sans-serif;
+    color: #fff;
+}
+
+.nav-container {
+    flex: 1;
+}
+
+header .nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+header .nav a {
+    color: #fff;
+    text-decoration: none;
+    font-family: 'Lato', sans-serif;
+    transition: color 0.3s ease;
+}
+
+header .nav a:hover {
+    color: #FF8762;
+}
+
+
+/* profile link with user icon */
+.user-icon {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #FFD700;
+    font-family: 'Lato', sans-serif;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.user-icon:hover {
+    color: #FF8762;
+}
+
+.user-icon svg {
+    width: 28px;
+    height: 28px;
+    fill: currentColor;
+    cursor: pointer;
+}
+
+/* --- Logout (always right) --- */
+.logout-container {
+    margin-left: auto;
+}
+
+#logoutBtn {
+    background-color: #FF8762;
+    color: #fff;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Lato', sans-serif;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#logoutBtn:hover {
+    background-color: #e06b4f;
+    transform: scale(1.05);
+}
+
+body {
+    padding-top: 100px; 
+}
+
+/* --- Responsive --- */
+@media screen and (max-width: 992px) {
+    .header-container {
+        padding: 10px 30px;
+        flex-wrap: wrap;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .nav-container {
+        order: 3; /* move nav below logo and logout on mobile */
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .logout-container {
+        order: 2;
+        margin-left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 5px;
+    }
+
+    header .nav {
+        justify-content: center;
+        gap: 15px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .header-container {
+        padding: 10px 15px;
+    }
+
+    #logoutBtn {
+        padding: 5px 12px;
+        font-size: 14px;
+    }
+
+    .user-icon {
+        font-size: 14px;
+    }
+}

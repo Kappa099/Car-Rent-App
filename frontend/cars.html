@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cars - Rentex</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/cars.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/footer.css">
+
+  
+</head>
+<body>
+
+  <header id="header-placeholder"></header>
+
+  <div class="filter-bar-container">
+    <form id="filterForm" class="filter-bar">
+      <select id="filterCity">
+        <option value="">All Cities</option>
+        <option value="tbilisi">Tbilisi</option>
+        <option value="batumi">Batumi</option>
+        <option value="kutaisi">Kutaisi</option>
+        <option value="rustavi">Rustavi</option>
+        <option value="gori">Gori</option>
+        <option value="zugdidi">Zugdidi</option>
+        <option value="poti">Poti</option>
+        <option value="telavi">Telavi</option>
+        <option value="mestia">Mestia</option>
+      </select>
+
+      <input type="number" id="yearMin" placeholder="Year from">
+      <input type="number" id="yearMax" placeholder="Year to">
+      <input type="number" id="capacityFilter" placeholder="Capacity">
+
+      <button type="submit">Filter</button>
+    </form>
+  </div>
+
+  <main>
+    <div class="cars-list-header">
+      <h2>Available Cars</h2>
+      <select id="sortCars">
+        <option value="default">Default</option>
+        <option value="popular">Popular</option>
+      </select>
+    </div>
+
+    <div id="car-list">
+      <p id="loading">Loading cars...</p>
+    </div>
+
+    <h3>Add a New Car</h3>
+    <form id="carForm">
+      <input type="text" id="brand" placeholder="Brand" required>
+      <input type="text" id="model" placeholder="Model" required>
+      <input type="number" id="year" placeholder="Year" required>
+      <input type="number" id="price" placeholder="Price per day" step="0.01" required>
+      <input type="number" id="capacity" placeholder="Capacity" required>
+
+      <select id="transmission" required>
+        <option value="automatic">Automatic</option>
+        <option value="manual">Manual</option>
+        <option value="tiptronic">Tiptronic</option>
+      </select>
+
+      <select id="location" required>
+        <option value="tbilisi">Tbilisi</option>
+        <option value="batumi">Batumi</option>
+        <option value="kutaisi">Kutaisi</option>
+        <option value="rustavi">Rustavi</option>
+        <option value="gori">Gori</option>
+        <option value="zugdidi">Zugdidi</option>
+        <option value="poti">Poti</option>
+        <option value="telavi">Telavi</option>
+        <option value="mestia">Mestia</option>
+      </select>
+
+      <input type="file" id="images" name="images" multiple accept="image/*">
+
+      <button type="submit">Add Car</button>
+    </form>
+    <p id="message"></p>
+  </main>
+
+  <div id="footer-placeholder"></div>
+
+  <script src="JavaScript/common.js"></script>
+  <script src="JavaScript/loadHeaderFooter.js"></script>
+  <script src="JavaScript/cars.js"></script>
+</body>
+</html>

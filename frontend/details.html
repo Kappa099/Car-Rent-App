@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Car Details - Rentex</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/cars.css">
+  <link rel="stylesheet" href="css/details.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/footer.css">
+
+
+
+</head>
+<body>
+  <header id="header-placeholder"></header>
+
+  <section id="car-carousel-section" class="carousel-section">
+    <div class="carousel-container">
+      <div class="carousel">
+        <button class="prev">&#10094;</button>
+        <div class="carousel-track"></div>
+        <button class="next">&#10095;</button>
+      </div>
+      <div class="carousel-dots"></div>
+
+      <div id="photo-upload-container" style="display:none; margin-top:1rem;">
+        <input type="file" id="photo-upload" multiple />
+        <button id="upload-btn">Upload Photos</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="car-details-section" class="details-section">
+    <div id="car-details" class="car-details">
+      <p id="loading">Loading car details...</p>
+
+      <div class="left-box" style="display:none;">
+        <h2 id="car-title"></h2>
+        <p id="car-price"></p>
+        <p id="car-capacity"></p>
+        <p id="car-transmission"></p>
+        <p id="car-city"></p>
+        <p id="car-owner"></p>
+
+        <button id="like-btn">❤ Like</button>
+        <p id="likes-count"></p>
+      </div>
+
+      <div class="right-box" style="display:none;">
+        <h3>Features & Additional Info</h3>
+        <div class="features-grid">
+          <div class="feature-box">
+            <h4>Vehicle Features</h4>
+            <ul id="vehicle-features"></ul>
+          </div>
+          <div class="feature-box">
+            <h4>Device Connectivity</h4>
+            <ul id="device-connectivity"></ul>
+          </div>
+          <div class="feature-box">
+            <h4>Convenience</h4>
+            <ul id="convenience"></ul>
+          </div>
+          <div class="feature-box">
+            <h4>Additional Features</h4>
+            <ul id="additional-features"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-placeholder"></div>
+
+  <script src="./JavaScript/common.js"></script>
+  <script src="./JavaScript/loadHeaderFooter.js"></script>
+  <script src="./JavaScript/details.js"></script>
+</body>
+</html>
