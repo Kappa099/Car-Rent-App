@@ -30,7 +30,7 @@ class CarSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Car
-        fields = "__all__"
+        exclude = ['likes']
 
     def get_photos(self, obj):
         if obj.photos.exists():

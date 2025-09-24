@@ -7,7 +7,7 @@ from .serializers import CarSerializer, RentalSerializer, ReviewSerializer, CarF
 from django.db import models
 from django.db.models import Count
 from accounts.models import Notification
-from datetime import datetime
+from datetime import datetime, timedelta, date
 from django.core.mail import send_mail
 from django.conf import settings
 
@@ -113,6 +113,7 @@ class RentCarView(APIView):
         car = get_object_or_404(Car, id=car_id)
         renter = request.user
 
+        # --- Days validation ---
         try:
             days = int(request.data.get("days", 1))
             if days < 1:
@@ -125,16 +126,29 @@ class RentCarView(APIView):
             pickup_date = (
                 datetime.strptime(pickup_date_str, "%Y-%m-%d").date()
                 if pickup_date_str
-                else datetime.today().date()
+                else date.today()
             )
         except ValueError:
-            return Response({"error": "Invalid pickup_date format. Use YYYY-MM-DD"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Invalid pickup_date format. Use YYYY-MM-DD"}, status=400)
 
-        if pickup_date < datetime.today().date():
-            return Response({"error": "Pickup date cannot be in the past"}, status=status.HTTP_400_BAD_REQUEST)
+        if pickup_date < date.today():
+            return Response({"error": "Pickup date cannot be in the past"}, status=400)
 
+        rental_start = pickup_date
+        rental_end = pickup_date + timedelta(days=days)
+
+        existing_rentals = Rental.objects.filter(car=car)
+
+        for rental in existing_rentals:
+            existing_start = rental.pickup_date
+            existing_end = existing_start + timedelta(days=rental.days)
+
+            if rental_start < existing_end and rental_end > existing_start:
+                return Response({"error": "Car is not available for the selected dates"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        # --- Create rental ---
         total_price = car.price * days
-
         rental = Rental.objects.create(
             user=renter,
             car=car,
@@ -143,7 +157,7 @@ class RentCarView(APIView):
             pickup_date=pickup_date
         )
 
-        # Create in-app notification
+        # --- Notification ---
         message = (
             f"{renter.get_full_name()} ({renter.username}) rented your car "
             f"{car.brand} {car.model} for {days} days starting {pickup_date}. "
@@ -151,6 +165,7 @@ class RentCarView(APIView):
         )
         Notification.objects.create(user=car.owner, message=message)
 
+        # --- Email owner ---
         if car.owner.email:
             send_mail(
                 subject="Your car has been rented 🚗",
@@ -164,7 +179,7 @@ class RentCarView(APIView):
             {"message": "Car rented successfully!", "rental_id": rental.id},
             status=status.HTTP_201_CREATED
         )
-
+    
 class LikeCarView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
