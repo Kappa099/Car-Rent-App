@@ -5,6 +5,37 @@ header {
     color: #ffffff;
     z-index: 1000;
 }
+.navbar-orange {
+  background-color: #FF6600;
+  box-shadow: none !important;
+}
+
+
+.navbar-orange .navbar-brand,
+.navbar-orange .nav-link,
+.navbar-orange #user-link-container,
+.navbar-orange #logoutBtn {
+  color: #ffffff;           
+  font-size: 1.1rem;        
+  font-weight: 600;          
+}
+
+.navbar-orange .navbar-brand,
+.navbar-orange .nav-link {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.navbar-orange .nav-link:hover,
+.navbar-orange .navbar-brand:hover,
+.navbar-orange #logoutBtn:hover {
+  color: #fff;             
+}
+
+.navbar-orange .navbar-toggler-icon {
+  filter: brightness(0) invert(1);
+  filter: brightness(0) !important;
+
+}
 
 .header-container {
     display: flex;

@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (headerPlaceholder) {
     try {
-      const res = await fetch("/header.html");
+      const res = await fetch("header.html");
       const headerHtml = await res.text();
       headerPlaceholder.innerHTML = headerHtml;
 
@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (footerPlaceholder) {
     try {
-      const res = await fetch("/footer.html");
+      const res = await fetch("footer.html");
       const footerHtml = await res.text();
       footerPlaceholder.innerHTML = footerHtml;
 

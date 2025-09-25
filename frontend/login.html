@@ -2,21 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Login - Rentex</title>
+
+  <!-- Bootstrap CSS -->
+  <link 
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" 
+    rel="stylesheet">
+
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/login.css">
-  <link rel="stylesheet" href="css/footer.css">
   <link rel="stylesheet" href="css/header.css">
-
-
+  <link rel="stylesheet" href="css/footer.css">
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- Dynamic header -->
   <div id="header-placeholder"></div>
 
-  <!-- Login Form -->
   <div class="form-container">
     <h2>Login</h2>
     <form id="loginForm">
@@ -25,16 +29,22 @@
       <button type="submit">Login</button>
     </form>
     <p id="message"></p>
-    <p>Don't have an account? <a href="register.html">Register</a></p>
+    <p>
+      Don't have an account?
+      <a href="register.html">Register</a>
+    </p>
   </div>
 
-  <!-- Footer -->
   <div id="footer-placeholder"></div>
 
-  <!-- JS -->
-  <script src="JavaScript/common.js"></script>
-  <script src="JavaScript/login.js"></script>
-  <script src="JavaScript/loadHeaderFooter.js"></script>
+  <!-- Bootstrap JS Bundle (Popper included) -->
+  <script 
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
+  </script>
 
+  <!-- Common scripts -->
+  <script src="JavaScript/common.js"></script>
+  <script src="JavaScript/loadHeaderFooter.js"></script>
+  <script src="JavaScript/login.js"></script>
 </body>
 </html>

@@ -1,8 +1,9 @@
 body {
-    font-family: 'Lato', sans-serif;
-    background-color: #f5f6fa;
-    margin: 0;
-    color: #1E2036;
+  font-family: 'Lato', sans-serif;
+  background-color: #f5f6fa;
+  margin: 0; 
+  color: #1E2036;
+  margin-top: -100px !important; 
 }
 
 h2, h3 {
@@ -45,6 +46,7 @@ h2, h3 {
     width: 100%;
     background: url('your-background.jpg') center/cover no-repeat;
     padding: 20px 20px 20px 20px;
+    background-color: #FF6600;
 }
 
 .filter-bar-container {

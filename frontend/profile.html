@@ -1,42 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile - Rentex</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/footer.css">
-    <link rel="stylesheet" href="CSS/profile.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Profile - Rentex</title>
 
+  <!-- Bootstrap CSS -->
+  <link 
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" 
+    rel="stylesheet">
 
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/footer.css">
+  <link rel="stylesheet" href="css/profile.css">
 </head>
 <body>
-    <div id="header-placeholder"></div>
 
-    <div class="profile-container">
-        <h1>My Profile</h1>
+  <!-- Dynamic header -->
+  <div id="header-placeholder"></div>
 
-        <div id="profile-info">
-            Loading profile...
-        </div>
+  <div class="profile-container">
+    <h1>My Profile</h1>
+    <div id="profile-info">Loading profile…</div>
 
-        <h2>Owned Cars</h2>
-        <div id="owned-cars" class="cars-grid">
-            <p>Loading owned cars...</p>
-        </div>
-
-        <h2>Rented Cars</h2>
-        <div id="rented-cars" class="cars-grid">
-            <p>Loading rented cars...</p>
-        </div>
+    <h2>Owned Cars</h2>
+    <div id="owned-cars" class="cars-grid">
+      <p>Loading owned cars…</p>
     </div>
 
-    <script src="JavaScript/common.js"></script>
-    <script src="JavaScript/loadHeaderFooter.js"></script>
-    <script src="JavaScript/profile.js"></script>
+    <h2>Rented Cars</h2>
+    <div id="rented-cars" class="cars-grid">
+      <p>Loading rented cars…</p>
+    </div>
+  </div>
 
-    <div id="footer-placeholder"></div>
+  <div id="footer-placeholder"></div>
 
+  <!-- Bootstrap JS Bundle (Popper included) -->
+  <script 
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
+  </script>
+
+  <!-- Common scripts -->
+  <script src="JavaScript/common.js"></script>
+  <script src="JavaScript/loadHeaderFooter.js"></script>
+  <script src="JavaScript/profile.js"></script>
 </body>
 </html>
