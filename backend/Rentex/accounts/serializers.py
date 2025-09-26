@@ -39,7 +39,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User(
-            username=validated_data["username"],  # this is phone number
+            username=validated_data["username"],  
             email=validated_data.get("email", ""),
             first_name=validated_data.get("first_name", ""),
             last_name=validated_data.get("last_name", "")
@@ -50,7 +50,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()  # phone number
+    username = serializers.CharField() 
     password = serializers.CharField(write_only=True)
 
     def validate(self, data):
@@ -104,11 +104,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
     owned_cars = CarSerializer(many=True, read_only=True, source="car_set")
     rented_cars = serializers.SerializerMethodField()
     rentals = RentalSerializer(many=True, read_only=True) 
+    liked_cars = CarSerializer(many=True, read_only=True)
+
 
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "first_name", "last_name", "owned_cars", "rented_cars", "rentals"]
+        fields = ["id", "username", "email", "first_name", "last_name", "owned_cars", "rented_cars", "rentals", "liked_cars"]
 
     def get_rented_cars(self, obj):
         rentals = obj.rentals.all() 

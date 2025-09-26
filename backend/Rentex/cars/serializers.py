@@ -49,11 +49,15 @@ class CarSerializer(serializers.ModelSerializer):
         validated_data["owner"] = user
 
         images = validated_data.pop("images", [])
+        if not images and request and hasattr(request, "FILES"):
+            images = request.FILES.getlist("images")
+
         car = Car.objects.create(**validated_data)
+
         for img in images:
             CarPhoto.objects.create(car=car, image=img)
-        return car
 
+        return car
 
 class RentalSerializer(serializers.ModelSerializer):
     car = CarSerializer(read_only=True)

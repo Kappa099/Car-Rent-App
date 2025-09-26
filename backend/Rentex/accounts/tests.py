@@ -16,7 +16,7 @@ class AuthTests(APITestCase):
             "email": "test@gmail.com",
             "first_name": "Vako",
             "last_name": "Kapanadze",
-            "username": "599534092",  # now using username instead of phone
+            "username": "599534092",  
             "password": "StrongPassword!",
             "confirm_password": "StrongPassword!"
         }
@@ -31,7 +31,7 @@ class AuthTests(APITestCase):
         # Register first
         self.client.post(self.register_url, self.user_data, format='json')
         login_data = {
-            "username": "599534092",  # login uses username
+            "username": "599534092", 
             "password": "StrongPassword!"
         }
         response = self.client.post(self.login_url, login_data, format='json')

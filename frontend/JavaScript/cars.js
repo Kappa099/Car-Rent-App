@@ -4,114 +4,75 @@ var carForm = document.getElementById("carForm");
 var messageEl = document.getElementById("message");
 var filterForm = document.getElementById("filterForm");
 var sortSelect = document.getElementById("sortCars");
+var photoInput = document.getElementById("images");
+var imagePreviewContainer = document.getElementById("imagePreviews");
 
-// Helper: get access token
-function getAccessToken() {
-  return localStorage.getItem("access");
-}
+var selectedFiles = [];
 
-// Helper: get current username from localStorage
-function getCurrentUsername() {
-  return localStorage.getItem("username");
-}
-
-// Helper: get URL parameters
+function getAccessToken() { return localStorage.getItem("access"); }
+function getCurrentUsername() { return localStorage.getItem("username"); }
 function getURLParameter(name) {
   var urlParams = new URLSearchParams(window.location.search);
   return urlParams.get(name);
 }
 
-// Helper: fetch with auth
 async function fetchWithAuth(endpoint, options = {}) {
   var token = getAccessToken();
   if (!options.headers) options.headers = {};
-  if (!(options.body instanceof FormData)) {
-    options.headers["Content-Type"] = "application/json";
-  }
-  if (token) options.headers["Authorization"] = `Bearer ${token}`;
-  return await fetch(`http://127.0.0.1:8000${endpoint}`, options);
+  if (!(options.body instanceof FormData)) options.headers["Content-Type"] = "application/json";
+  if (token) options.headers["Authorization"] = "Bearer " + token;
+  return await fetch("http://127.0.0.1:8000" + endpoint, options);
 }
 
-// Delete car function
 async function deleteCar(carId) {
-  if (!confirm("Are you sure you want to delete this car?")) {
-    return;
-  }
+  if (!confirm("Are you sure you want to delete this car?")) return;
 
   try {
-    var res = await fetchWithAuth(`/cars/${carId}/`, {
-      method: "DELETE"
-    });
-
+    var res = await fetchWithAuth("/cars/" + carId + "/", { method: "DELETE" });
     if (res.ok) {
-      // Show success message
       if (messageEl) {
         messageEl.textContent = "Car deleted successfully!";
         messageEl.style.color = "green";
-        setTimeout(function() {
-          messageEl.textContent = "";
-        }, 3000);
+        setTimeout(function() { messageEl.textContent = ""; }, 3000);
       }
-      // Reload the car list
       loadCars();
     } else {
       var errorMsg = "Failed to delete car";
-      try {
-        var errorData = await res.json();
-        errorMsg = errorData.detail || errorMsg;
-      } catch (e) {
-        errorMsg = await res.text() || errorMsg;
-      }
-      
-      if (messageEl) {
-        messageEl.textContent = errorMsg;
-        messageEl.style.color = "red";
-        setTimeout(function() {
-          messageEl.textContent = "";
-        }, 5000);
-      }
+      try { var errorData = await res.json(); errorMsg = errorData.detail || errorMsg; } 
+      catch (e) { errorMsg = await res.text() || errorMsg; }
+      if (messageEl) { messageEl.textContent = errorMsg; messageEl.style.color = "red"; setTimeout(function() { messageEl.textContent = ""; }, 5000); }
       alert(errorMsg);
     }
   } catch (error) {
     console.error("Error deleting car:", error);
     var errMsg = "Error deleting car: " + error.message;
-    if (messageEl) {
-      messageEl.textContent = errMsg;
-      messageEl.style.color = "red";
-    }
+    if (messageEl) { messageEl.textContent = errMsg; messageEl.style.color = "red"; }
     alert(errMsg);
   }
 }
 
-// Load cars
 async function loadCars(query = "") {
   try {
     carListEl.innerHTML = "";
     loadingEl.style.display = "block";
-
-    var res = await fetch(`http://127.0.0.1:8000/cars/${query}`, { method: "GET" });
+    var res = await fetch("http://127.0.0.1:8000/cars/" + query, { method: "GET" });
     if (!res.ok) throw new Error("Failed to fetch cars");
 
     var cars = await res.json();
     loadingEl.style.display = "none";
 
-    if (cars.length === 0) {
-      carListEl.innerHTML = "<p>No cars available.</p>";
-      return;
-    }
+    if (cars.length === 0) { carListEl.innerHTML = "<p>No cars available.</p>"; return; }
 
-    // Get current user
     var currentUser = getCurrentUsername();
 
-    cars.forEach(function (car) {
+    cars.forEach(function(car) {
       var div = document.createElement("div");
       div.classList.add("car-card");
 
       var imgSrc = car.photos && car.photos.length > 0
-        ? `http://127.0.0.1:8000${car.photos[0]}`
+        ? "http://127.0.0.1:8000" + car.photos[0]
         : "http://127.0.0.1:8000/media/cars/photos/default-car.jpg";
 
-      // Check if current user is the owner
       var isOwner = currentUser && car.owner === currentUser;
 
       div.innerHTML = `
@@ -128,65 +89,35 @@ async function loadCars(query = "") {
         </a>
         <div class="car-actions">
           <button class="rent-btn" data-car-id="${car.id}">Rent</button>
-          ${isOwner ? `
-            <button class="edit-btn" data-car-id="${car.id}">Edit</button>
-            <button class="delete-btn" data-car-id="${car.id}">Delete</button>
-          ` : ''}
+          ${isOwner ? `<button class="edit-btn" data-car-id="${car.id}">Edit</button><button class="delete-btn" data-car-id="${car.id}">Delete</button>` : ''}
         </div>
       `;
 
       var heartEl = div.querySelector(".heart");
       var likesCountEl = div.querySelector(".likes-count");
+      if (car.is_liked) heartEl.classList.add("liked");
 
-      // Set initial liked state
-      if (car.is_liked) {
-        heartEl.classList.add("liked");
-      }
-
-      // Heart click: toggle like via API
-      heartEl.addEventListener("click", async function (e) {
+      heartEl.addEventListener("click", async function(e) {
         e.preventDefault();
         try {
-          var res = await fetchWithAuth(`/cars/${car.id}/like/`, { method: "POST" });
+          var res = await fetchWithAuth("/cars/" + car.id + "/like/", { method: "POST" });
           if (res.ok) {
             var data = await res.json();
-            if (data.message === "Car liked!") {
-              heartEl.classList.add("liked");
-              car.likes_count += 1;
-            } else if (data.message === "Car unliked.") {
-              heartEl.classList.remove("liked");
-              car.likes_count -= 1;
-            }
-            likesCountEl.textContent = `Likes: ${car.likes_count || 0}`;
-          } else {
-            console.error("Failed to like/unlike car");
+            if (data.message === "Car liked!") { heartEl.classList.add("liked"); car.likes_count += 1; } 
+            else if (data.message === "Car unliked.") { heartEl.classList.remove("liked"); car.likes_count -= 1; }
+            likesCountEl.textContent = "Likes: " + (car.likes_count || 0);
           }
-        } catch (err) {
-          console.error("Error liking/unliking car:", err);
-        }
+        } catch (err) { console.error("Error liking/unliking car:", err); }
       });
 
-      // Rent button click: go to rent.html with car_id
       var rentBtn = div.querySelector(".rent-btn");
-      rentBtn.addEventListener("click", function () {
-        window.location.href = `rent.html?car_id=${car.id}`;
-      });
+      rentBtn.addEventListener("click", function() { window.location.href = "rent.html?car_id=" + car.id; });
 
-      // Edit button click (if owner)
       var editBtn = div.querySelector(".edit-btn");
-      if (editBtn) {
-        editBtn.addEventListener("click", function () {
-          window.location.href = `details.html?id=${car.id}`;
-        });
-      }
+      if (editBtn) editBtn.addEventListener("click", function() { window.location.href = "details.html?id=" + car.id; });
 
-      // Delete button click (if owner)
       var deleteBtn = div.querySelector(".delete-btn");
-      if (deleteBtn) {
-        deleteBtn.addEventListener("click", function () {
-          deleteCar(car.id);
-        });
-      }
+      if (deleteBtn) deleteBtn.addEventListener("click", function() { deleteCar(car.id); });
 
       carListEl.appendChild(div);
     });
@@ -196,28 +127,70 @@ async function loadCars(query = "") {
   }
 }
 
-// Initialize page with URL parameters
-function initializePage() {
-  // Check if there's a city parameter in the URL
-  var cityParam = getURLParameter("city");
+function updatePreviews() {
+  imagePreviewContainer.innerHTML = "";
+  imagePreviewContainer.style.display = "flex";
+  imagePreviewContainer.style.flexWrap = "wrap";
+  imagePreviewContainer.style.gap = "10px";
   
+  selectedFiles.forEach(function(file, index) {
+    var previewDiv = document.createElement("div");
+    previewDiv.style.position = "relative";
+    previewDiv.style.display = "inline-block";
+
+    var img = document.createElement("img");
+    img.src = URL.createObjectURL(file);
+    img.onload = function() { URL.revokeObjectURL(img.src); };
+    img.style.width = "120px";
+    img.style.height = "80px";
+    img.style.objectFit = "cover";
+    img.style.borderRadius = "6px";
+
+    var removeBtn = document.createElement("button");
+    removeBtn.textContent = "×";
+    removeBtn.style.position = "absolute";
+    removeBtn.style.top = "-5px";
+    removeBtn.style.right = "-5px";
+    removeBtn.style.background = "red";
+    removeBtn.style.color = "white";
+    removeBtn.style.border = "none";
+    removeBtn.style.borderRadius = "50%";
+    removeBtn.style.width = "20px";
+    removeBtn.style.height = "20px";
+    removeBtn.style.cursor = "pointer";
+    removeBtn.style.fontSize = "12px";
+
+    removeBtn.addEventListener("click", function() {
+      selectedFiles.splice(index, 1);
+      updatePreviews();
+    });
+
+    previewDiv.appendChild(img);
+    previewDiv.appendChild(removeBtn);
+    imagePreviewContainer.appendChild(previewDiv);
+  });
+}
+
+function initializePage() {
+  var cityParam = getURLParameter("city");
   if (cityParam) {
-    // Set the filter dropdown to the city from URL
     var filterCityEl = document.getElementById("filterCity");
-    if (filterCityEl) {
-      filterCityEl.value = cityParam.toLowerCase();
-    }
-    
-    // Load cars with the city filter
-    loadCars(`?city=${cityParam}`);
+    if (filterCityEl) filterCityEl.value = cityParam.toLowerCase();
+    loadCars("?city=" + cityParam);
   } else {
-    // Load all cars
     loadCars();
   }
 }
 
-// Filter form
-filterForm.addEventListener("submit", async function (e) {
+photoInput.addEventListener("change", function () {
+  Array.from(this.files).forEach(function(file) {
+    if (!selectedFiles.some(function(f){ return f.name === file.name && f.size === file.size; })) selectedFiles.push(file);
+  });
+  updatePreviews();
+  this.value = '';
+});
+
+filterForm.addEventListener("submit", async function(e) {
   e.preventDefault();
   var city = document.getElementById("filterCity").value;
   var yearMin = document.getElementById("yearMin").value;
@@ -225,41 +198,30 @@ filterForm.addEventListener("submit", async function (e) {
   var capacity = document.getElementById("capacityFilter").value;
 
   var query = "?";
-  if (city) query += `city=${city}&`;
-  if (yearMin) query += `year_min=${yearMin}&`;
-  if (yearMax) query += `year_max=${yearMax}&`;
-  if (capacity) query += `capacity=${capacity}&`;
+  if (city) query += "city=" + city + "&";
+  if (yearMin) query += "year_min=" + yearMin + "&";
+  if (yearMax) query += "year_max=" + yearMax + "&";
+  if (capacity) query += "capacity=" + capacity + "&";
 
-  // Include sort if selected
   var sortValue = sortSelect.value;
   if (sortValue === "popular") query += "sort=popular&";
 
-  // Update URL without reloading the page
   var newUrl = window.location.pathname;
-  if (query !== "?") {
-    newUrl += query.slice(0, -1); // Remove trailing &
-  }
-  window.history.pushState({}, '', newUrl);
+  if (query !== "?") newUrl += query.slice(0, -1);
+  window.history.pushState({}, "", newUrl);
 
   await loadCars(query);
 });
 
-// Sorting select
-sortSelect.addEventListener("change", function () {
+sortSelect.addEventListener("change", function() {
   var sortValue = sortSelect.value;
   var query = sortValue === "popular" ? "?sort=popular" : "";
-  
-  // Keep existing city filter if present
   var cityFilter = document.getElementById("filterCity").value;
-  if (cityFilter) {
-    query = query ? query + "&city=" + cityFilter : "?city=" + cityFilter;
-  }
-  
+  if (cityFilter) query = query ? query + "&city=" + cityFilter : "?city=" + cityFilter;
   loadCars(query);
 });
 
-// Handle add car form
-carForm.addEventListener("submit", async function (e) {
+carForm.addEventListener("submit", async function(e) {
   e.preventDefault();
   var brand = document.getElementById("brand").value;
   var model = document.getElementById("model").value;
@@ -268,7 +230,6 @@ carForm.addEventListener("submit", async function (e) {
   var capacity = parseInt(document.getElementById("capacity").value);
   var transmission = document.getElementById("transmission").value;
   var location = document.getElementById("location").value;
-  var photoInput = document.getElementById("images");
 
   var formData = new FormData();
   formData.append("brand", brand);
@@ -279,18 +240,14 @@ carForm.addEventListener("submit", async function (e) {
   formData.append("transmission", transmission);
   formData.append("location", location);
 
-  if (photoInput && photoInput.files.length > 0) {
-    for (var i = 0; i < photoInput.files.length; i++) {
-      formData.append("images", photoInput.files[i]);
+  if (selectedFiles.length > 0) {
+    for (var i = 0; i < selectedFiles.length; i++) {
+      formData.append("images", selectedFiles[i]);
     }
   }
 
   try {
-    var res = await fetchWithAuth("/cars/create/", {
-      method: "POST",
-      body: formData
-    });
-
+    var res = await fetchWithAuth("/cars/create/", { method: "POST", body: formData });
     var errMsg = "";
     var contentType = res.headers.get("content-type") || "";
 
@@ -298,14 +255,10 @@ carForm.addEventListener("submit", async function (e) {
       messageEl.textContent = "Car added successfully!";
       messageEl.style.color = "green";
       carForm.reset();
-      
-      // Reload with current filters
-      var cityFilter = document.getElementById("filterCity").value;
-      if (cityFilter) {
-        loadCars(`?city=${cityFilter}`);
-      } else {
-        loadCars();
-      }
+      selectedFiles = [];
+      imagePreviewContainer.innerHTML = "";
+      if (document.getElementById("filterCity").value) loadCars("?city=" + document.getElementById("filterCity").value);
+      else loadCars();
     } else {
       if (contentType.includes("application/json")) {
         var err = await res.json();
@@ -323,5 +276,4 @@ carForm.addEventListener("submit", async function (e) {
   }
 });
 
-// Initialize the page
 initializePage();

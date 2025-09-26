@@ -1,5 +1,5 @@
 async function logout(){
-  const refresh = getRefreshToken();
+  var refresh = getRefreshToken();
   try{
     await fetch(API_BASE + "/accounts/logout/", {
       method:"POST",

@@ -1,21 +1,21 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const loginForm = document.getElementById("loginForm");
+  var loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const data = {
+      var data = {
         username: document.getElementById("phone").value,
         password: document.getElementById("password").value
       };
-      const msgEl = document.getElementById("message");
+      var msgEl = document.getElementById("message");
 
       try {
-        const res = await fetch(API_BASE + "/accounts/login/", {
+        var res = await fetch(API_BASE + "/accounts/login/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data)
         });
-        const result = await res.json();
+        var result = await res.json();
         if (res.ok) {
           setTokens(result.access, result.refresh);
           localStorage.setItem("user_id", result.user.id);

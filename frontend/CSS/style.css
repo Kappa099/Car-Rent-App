@@ -1,4 +1,3 @@
-/* --- Reset & Base --- */
 *,
 *::before,
 *::after {
@@ -14,16 +13,15 @@ body {
   line-height: 1.6;
 }
 
-/* --- Container --- */
 .container {
   width: 90%;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-/* --- Header --- */
+
 header {
-  background-color: #FF6600; /* SIXT Orange */
+  background-color: #FF6600;
   color: #FFFFFF;
   padding: 15px 0;
 }
@@ -53,7 +51,6 @@ header nav a:hover {
   background-color: #FF8533;
 }
 
-/* --- Footer --- */
 footer {
   background-color: #333333;
   color: #FFFFFF;
@@ -63,7 +60,6 @@ footer {
   font-size: 14px;
 }
 
-/* --- Buttons --- */
 button {
   background-color: #FF6600;
   color: #FFFFFF;

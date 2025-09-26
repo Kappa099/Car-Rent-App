@@ -103,8 +103,40 @@ class CarRetrieveUpdateDestroyAPIView(APIView):
         car.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
 
+    def delete(self, request, car_id):
+        car = get_object_or_404(Car, id=car_id)
+        self.check_object_permissions(request, car)
 
+        photo_url = request.data.get("photo_url")
+        if not photo_url:
+            return Response({"error": "photo_url is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        photo = CarPhoto.objects.filter(car=car, image=photo_url).first()
+        if not photo:
+            return Response({"error": "Photo not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        photo.delete()
+        return Response({"message": "Photo deleted"}, status=status.HTTP_200_OK)
+    
+class CarPhotoDeleteView(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
+
+    def delete(self, request, car_id):
+        car = get_object_or_404(Car, id=car_id)
+        self.check_object_permissions(request, car)
+
+        photo_url = request.data.get("photo_url")
+        if not photo_url:
+            return Response({"error": "photo_url is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        photo = CarPhoto.objects.filter(car=car, image=photo_url).first()
+        if not photo:
+            return Response({"error": "Photo not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        photo.delete()
+        return Response({"message": "Photo deleted"}, status=status.HTTP_200_OK)
 
 class RentCarView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -113,7 +145,6 @@ class RentCarView(APIView):
         car = get_object_or_404(Car, id=car_id)
         renter = request.user
 
-        # --- Days validation ---
         try:
             days = int(request.data.get("days", 1))
             if days < 1:
@@ -220,7 +251,6 @@ class UpdateCarFeaturesView(APIView):
     def patch(self, request, car_id):
         car = get_object_or_404(Car, id=car_id)
 
-        # Only owner can update features
         if car.owner != request.user:
             return Response({"error": "Not allowed"}, status=status.HTTP_403_FORBIDDEN)
 
