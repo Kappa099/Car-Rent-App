@@ -1,43 +1,50 @@
-var API_BASE = "http://127.0.0.1:8000";
+let API_BASE = "http://127.0.0.1:8000";
 
-function getAccessToken() { return localStorage.getItem("access"); }
-function getRefreshToken() { return localStorage.getItem("refresh"); }
-function setTokens(access, refresh) {
+let getAccessToken = () => localStorage.getItem("access");
+let getRefreshToken = () => localStorage.getItem("refresh");
+let setTokens = (access, refresh) => {
   localStorage.setItem("access", access);
   localStorage.setItem("refresh", refresh);
-}
-function clearTokens() {
+};
+let clearTokens = () => {
   localStorage.removeItem("access");
   localStorage.removeItem("refresh");
-}
+};
 
-async function refreshAccessToken() {
-  var refresh = getRefreshToken();
+let refreshAccessToken = async () => {
+  let refresh = getRefreshToken();
   if (!refresh) return false;
-  var resp = await fetch(API_BASE + "/accounts/token/refresh/", {
+
+  let resp = await fetch(API_BASE + "/accounts/token/refresh/", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ refresh })
   });
-  if (!resp.ok) { clearTokens(); return false; }
-  var data = await resp.json();
+
+  if (!resp.ok) {
+    clearTokens();
+    return false;
+  }
+
+  let data = await resp.json();
   setTokens(data.access, refresh);
   return true;
-}
+};
 
-async function fetchWithAuth(endpoint, opts = {}) {
+let fetchWithAuth = async (endpoint, opts = {}) => {
   if (!opts.headers) opts.headers = {};
-  opts.headers = {...opts.headers, "Content-Type": "application/json"};
-  var access = getAccessToken();
+  opts.headers = { ...opts.headers, "Content-Type": "application/json" };
+  let access = getAccessToken();
   if (access) opts.headers["Authorization"] = "Bearer " + access;
 
-  var res = await fetch(API_BASE + endpoint, opts);
+  let res = await fetch(API_BASE + endpoint, opts);
 
   if (res.status === 401) {
-    var ok = await refreshAccessToken();
+    let ok = await refreshAccessToken();
     if (!ok) throw new Error("Not authenticated");
     opts.headers["Authorization"] = "Bearer " + getAccessToken();
     res = await fetch(API_BASE + endpoint, opts);
   }
+
   return res;
-}
+};

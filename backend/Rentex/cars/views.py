@@ -4,7 +4,6 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from .models import Car, Rental, CarPhoto, Review
 from .serializers import CarSerializer, RentalSerializer, ReviewSerializer, CarFeaturesSerializer
-from django.db import models
 from django.db.models import Count
 from accounts.models import Notification
 from datetime import datetime, timedelta, date
@@ -47,23 +46,6 @@ class CarListApiView(APIView):
         serializer = CarSerializer(cars, many=True, context={"request": request})
         return Response(serializer.data)
 
-class CarPhotoUploadView(APIView):
-    permission_classes = [permissions.IsAuthenticated, IsOwner]
-
-    def post(self, request, car_id):
-        car = get_object_or_404(Car, id=car_id)
-        self.check_object_permissions(request, car)
-
-        images = request.FILES.getlist("images")
-        if not images:
-            return Response({"error": "No images provided"}, status=400)
-
-        photos = []
-        for img in images:
-            photo = CarPhoto.objects.create(car=car, image=img)
-            photos.append(photo.image.url)
-
-        return Response({"photos": photos}, status=201)
 
 class CarListCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -76,6 +58,8 @@ class CarListCreateView(APIView):
 
 
 class CarRetrieveUpdateDestroyAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
+
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:
             return [permissions.AllowAny()]
@@ -101,25 +85,9 @@ class CarRetrieveUpdateDestroyAPIView(APIView):
         car = self.get_object(pk)
         self.check_object_permissions(request, car)
         car.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "Car deleted successfully!"}, status=status.HTTP_204_NO_CONTENT)
 
-    permission_classes = [permissions.IsAuthenticated, IsOwner]
 
-    def delete(self, request, car_id):
-        car = get_object_or_404(Car, id=car_id)
-        self.check_object_permissions(request, car)
-
-        photo_url = request.data.get("photo_url")
-        if not photo_url:
-            return Response({"error": "photo_url is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        photo = CarPhoto.objects.filter(car=car, image=photo_url).first()
-        if not photo:
-            return Response({"error": "Photo not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        photo.delete()
-        return Response({"message": "Photo deleted"}, status=status.HTTP_200_OK)
-    
 class CarPhotoDeleteView(APIView):
     permission_classes = [permissions.IsAuthenticated, IsOwner]
 
@@ -137,6 +105,26 @@ class CarPhotoDeleteView(APIView):
 
         photo.delete()
         return Response({"message": "Photo deleted"}, status=status.HTTP_200_OK)
+
+
+class CarPhotoUploadView(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
+
+    def post(self, request, car_id):
+        car = get_object_or_404(Car, id=car_id)
+        self.check_object_permissions(request, car)
+
+        images = request.FILES.getlist("images")
+        if not images:
+            return Response({"error": "No images provided"}, status=400)
+
+        photos = []
+        for img in images:
+            photo = CarPhoto.objects.create(car=car, image=img)
+            photos.append(photo.image.url)
+
+        return Response({"photos": photos}, status=201)
+
 
 class RentCarView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -169,16 +157,12 @@ class RentCarView(APIView):
         rental_end = pickup_date + timedelta(days=days)
 
         existing_rentals = Rental.objects.filter(car=car)
-
         for rental in existing_rentals:
             existing_start = rental.pickup_date
             existing_end = existing_start + timedelta(days=rental.days)
-
             if rental_start < existing_end and rental_end > existing_start:
                 return Response({"error": "Car is not available for the selected dates"}, status=status.HTTP_400_BAD_REQUEST)
 
-
-        # --- Create rental ---
         total_price = car.price * days
         rental = Rental.objects.create(
             user=renter,
@@ -188,7 +172,6 @@ class RentCarView(APIView):
             pickup_date=pickup_date
         )
 
-        # --- Notification ---
         message = (
             f"{renter.get_full_name()} ({renter.username}) rented your car "
             f"{car.brand} {car.model} for {days} days starting {pickup_date}. "
@@ -196,7 +179,6 @@ class RentCarView(APIView):
         )
         Notification.objects.create(user=car.owner, message=message)
 
-        # --- Email owner ---
         if car.owner.email:
             send_mail(
                 subject="Your car has been rented 🚗",
@@ -210,7 +192,8 @@ class RentCarView(APIView):
             {"message": "Car rented successfully!", "rental_id": rental.id},
             status=status.HTTP_201_CREATED
         )
-    
+
+
 class LikeCarView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -244,7 +227,8 @@ class ReviewCarView(APIView):
             car=car, user=user, defaults={"rating": rating}
         )
         return Response({"message": "Rating submitted", "rating": rating}, status=status.HTTP_200_OK)
-    
+
+
 class UpdateCarFeaturesView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 

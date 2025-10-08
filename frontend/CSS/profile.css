@@ -17,7 +17,9 @@ body {
 h1, h2 {
     text-align: center;
 }
-
+h2 {
+    margin-top: 50px
+}
 #profile-info {
     margin: 20px 0;
     background-color: #f8f9fa;
