@@ -1,5 +1,5 @@
 (async () => {
-  var welcomeEl = document.getElementById("welcome");
+  let welcomeEl = document.getElementById("welcome");
 
   if (getAccessToken()) {
     try {
