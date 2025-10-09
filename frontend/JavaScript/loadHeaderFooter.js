@@ -1,26 +1,26 @@
 document.addEventListener("DOMContentLoaded", async function() {
-  var headerPlaceholder = document.getElementById("header-placeholder");
-  var footerPlaceholder = document.getElementById("footer-placeholder");
+  let headerPlaceholder = document.getElementById("header-placeholder");
+  let footerPlaceholder = document.getElementById("footer-placeholder");
 
   if (headerPlaceholder) {
     try {
-      var res = await fetch("header.html");
-      var headerHtml = await res.text();
+      let res = await fetch("header.html");
+      let headerHtml = await res.text();
       headerPlaceholder.innerHTML = headerHtml;
 
-      var userLinkContainer = document.getElementById("user-link-container");
-      var logoutBtn = document.getElementById("logoutBtn");
-      var token = localStorage.getItem("access");
+      let userLinkContainer = document.getElementById("user-link-container");
+      let logoutBtn = document.getElementById("logoutBtn");
+      let token = localStorage.getItem("access");
 
       if (token) {
         try {
-          var userRes = await fetch("http://127.0.0.1:8000/accounts/me/", {
+          let userRes = await fetch("http://127.0.0.1:8000/accounts/me/", {
             headers: { "Authorization": "Bearer " + token }
           });
 
           if (userRes.ok) {
-            var user = await userRes.json();
-            var username = user.username;
+            let user = await userRes.json();
+            let username = user.username;
 
             if (userLinkContainer) {
               userLinkContainer.innerHTML = 
@@ -61,27 +61,27 @@ document.addEventListener("DOMContentLoaded", async function() {
 
   if (footerPlaceholder) {
     try {
-      var res = await fetch("footer.html");
-      var footerHtml = await res.text();
+      let res = await fetch("footer.html");
+      let footerHtml = await res.text();
       footerPlaceholder.innerHTML = footerHtml;
 
-      var contactForm = document.querySelector(".form-container form");
+      let contactForm = document.querySelector(".form-container form");
 
       if (contactForm) {
         contactForm.addEventListener("submit", async function(e) {
           e.preventDefault();
 
-          var firstNameInput = contactForm.querySelector("#first-name");
-          var lastNameInput  = contactForm.querySelector("#last-name");
-          var emailInput     = contactForm.querySelector("#email");
-          var messageInput   = contactForm.querySelector("#message");
+          let firstNameInput = contactForm.querySelector("#first-name");
+          let lastNameInput  = contactForm.querySelector("#last-name");
+          let emailInput     = contactForm.querySelector("#email");
+          let messageInput   = contactForm.querySelector("#message");
 
           if (!firstNameInput || !lastNameInput || !emailInput || !messageInput) {
             alert("Form inputs not found.");
             return;
           }
 
-          var data = {
+          let data = {
             first_name: firstNameInput.value.trim(),
             last_name: lastNameInput.value.trim(),
             email: emailInput.value.trim(),
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", async function() {
           };
 
           try {
-            var res = await fetch("http://127.0.0.1:8000/api/contact/", {
+            let res = await fetch("http://127.0.0.1:8000/api/contact/", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(data)
@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", async function() {
               alert("Message sent successfully!");
               contactForm.reset();
             } else {
-              var errorData = await res.json();
+              let errorData = await res.json();
               console.error(errorData);
               alert("Failed to send message. Please check your input.");
             }
@@ -110,10 +110,10 @@ document.addEventListener("DOMContentLoaded", async function() {
         });
       }
 
-      var inputs = document.querySelectorAll(".input-group input, .input-group textarea");
+      let inputs = document.querySelectorAll(".input-group input, .input-group textarea");
       inputs.forEach(function(input) {
         input.addEventListener("invalid", function() {
-          var instruction = input.parentElement.querySelector(".instruction");
+          let instruction = input.parentElement.querySelector(".instruction");
           if (instruction) instruction.style.display = "block";
         });
       });
@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 function fetchWithAuth(endpoint, options) {
   options = options || {};
-  var token = localStorage.getItem("access");
+  let token = localStorage.getItem("access");
   if (!options.headers) options.headers = {};
   if (!(options.body instanceof FormData)) options.headers["Content-Type"] = "application/json";
   if (token) options.headers["Authorization"] = "Bearer " + token;
