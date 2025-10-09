@@ -1,23 +1,23 @@
 document.addEventListener("DOMContentLoaded", function() {
-    var urlParams = new URLSearchParams(window.location.search);
-    var CAR_ID = urlParams.get("car_id"); 
+    let urlParams = new URLSearchParams(window.location.search);
+    let CAR_ID = urlParams.get("car_id"); 
 
-    var carPhoto = document.getElementById("car-photo");
-    var carName = document.getElementById("car-name");
-    var carLocation = document.getElementById("car-location");
-    var carPriceEl = document.getElementById("car-price");
-    var daysInput = document.getElementById("days");
-    var totalPriceEl = document.getElementById("total-price");
-    var rentForm = document.getElementById("rent-form");
-    var messageEl = document.getElementById("message");
-    var pickupDateInput = document.getElementById("pickup-date");
-    var rentButton = rentForm.querySelector("button[type='submit']");
+    let carPhoto = document.getElementById("car-photo");
+    let carName = document.getElementById("car-name");
+    let carLocation = document.getElementById("car-location");
+    let carPriceEl = document.getElementById("car-price");
+    let daysInput = document.getElementById("days");
+    let totalPriceEl = document.getElementById("total-price");
+    let rentForm = document.getElementById("rent-form");
+    let messageEl = document.getElementById("message");
+    let pickupDateInput = document.getElementById("pickup-date");
+    let rentButton = rentForm.querySelector("button[type='submit']");
 
-    var token = localStorage.getItem("access");
-    var username = localStorage.getItem("username");
-    var currentUserId = token ? parseInt(localStorage.getItem("user_id")) : null;
+    let token = localStorage.getItem("access");
+    let username = localStorage.getItem("username");
+    let currentUserId = token ? parseInt(localStorage.getItem("user_id")) : null;
 
-    var carData = null;
+    let carData = null;
 
     if (!CAR_ID) {
         messageEl.textContent = "Invalid car selected.";
@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     async function loadCar() {
         try {
-            var res = await fetch("http://127.0.0.1:8000/cars/" + CAR_ID + "/");
+            let res = await fetch("http://127.0.0.1:8000/cars/" + CAR_ID + "/");
             if (!res.ok) throw new Error("Failed to fetch car info");
 
             carData = await res.json();
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function updateTotalPrice() {
-        var days = parseInt(daysInput.value) || 1;
+        let days = parseInt(daysInput.value) || 1;
         totalPriceEl.textContent = ((days * (carData ? carData.price : 0))).toFixed(2);
     }
 
@@ -83,8 +83,8 @@ document.addEventListener("DOMContentLoaded", function() {
         if (!token) return;
         messageEl.textContent = "";
 
-        var pickup_date = pickupDateInput.value;
-        var days = parseInt(daysInput.value);
+        let pickup_date = pickupDateInput.value;
+        let days = parseInt(daysInput.value);
 
         if (!pickup_date) {
             messageEl.textContent = "Please select a pickup date";
@@ -99,12 +99,12 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         try {
-            var res = await fetchWithAuth("/cars/" + CAR_ID + "/rent/", {
+            let res = await fetchWithAuth("/cars/" + CAR_ID + "/rent/", {
                 method: "POST",
                 body: JSON.stringify({ pickup_date: pickup_date, days: days })
             });
 
-            var data = await res.json();
+            let data = await res.json();
             if (res.ok) {
                 messageEl.style.color = "green";
                 messageEl.textContent = data.message || "Car rented successfully!";

@@ -1,10 +1,10 @@
 document.addEventListener("DOMContentLoaded", function() {
-    var profileInfo = document.getElementById("profile-info");
-    var ownedCarsEl = document.getElementById("owned-cars");
-    var rentedCarsEl = document.getElementById("rented-cars");
-    var likedCarsEl = document.getElementById("liked-cars");
+    let profileInfo = document.getElementById("profile-info");
+    let ownedCarsEl = document.getElementById("owned-cars");
+    let rentedCarsEl = document.getElementById("rented-cars");
+    let likedCarsEl = document.getElementById("liked-cars");
 
-    var accessToken = localStorage.getItem("access");
+    let accessToken = localStorage.getItem("access");
 
     if (!accessToken) {
         window.location.href = "login.html";
@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     async function fetchProfile() {
         try {
-            var meRes = await fetch("http://127.0.0.1:8000/accounts/me/", {
+            let meRes = await fetch("http://127.0.0.1:8000/accounts/me/", {
                 headers: { "Authorization": "Bearer " + accessToken }
             });
 
@@ -26,16 +26,16 @@ document.addEventListener("DOMContentLoaded", function() {
                 throw new Error("Failed to fetch current user");
             }
 
-            var meData = await meRes.json();
-            var userId = meData.id;
+            let meData = await meRes.json();
+            let userId = meData.id;
 
-            var res = await fetch("http://127.0.0.1:8000/accounts/profile/" + userId + "/", {
+            let res = await fetch("http://127.0.0.1:8000/accounts/profile/" + userId + "/", {
                 headers: { "Authorization": "Bearer " + accessToken }
             });
 
             if (!res.ok) throw new Error("Failed to fetch full profile");
 
-            var data = await res.json();
+            let data = await res.json();
 
             profileInfo.innerHTML = 
                 '<div class="profile-field"><span>Username:</span> ' + data.username + '</div>' +
@@ -69,22 +69,22 @@ document.addEventListener("DOMContentLoaded", function() {
 
     async function fetchOwnedCarsAlternative() {
         try {
-            var userRes = await fetch("http://127.0.0.1:8000/accounts/me/", {
+            let userRes = await fetch("http://127.0.0.1:8000/accounts/me/", {
                 headers: { "Authorization": "Bearer " + accessToken }
             });
 
             if (!userRes.ok) throw new Error("Failed to get user data");
-            var userData = await userRes.json();
-            var userId = userData.id;
+            let userData = await userRes.json();
+            let userId = userData.id;
 
-            var carsRes = await fetch("http://127.0.0.1:8000/cars/", {
+            let carsRes = await fetch("http://127.0.0.1:8000/cars/", {
                 headers: { "Authorization": "Bearer " + accessToken }
             });
 
             if (!carsRes.ok) throw new Error("Failed to fetch cars");
-            var allCars = await carsRes.json();
+            let allCars = await carsRes.json();
 
-            var ownedCars = allCars.filter(function(car) {
+            let ownedCars = allCars.filter(function(car) {
                 return car.owner === userId || car.owner_id === userId || (car.owner && car.owner.id === userId);
             });
 
@@ -107,11 +107,11 @@ document.addEventListener("DOMContentLoaded", function() {
         containerEl.innerHTML = "";
 
         cars.forEach(function(item) {
-            var car = item.car ? item.car : item;
-            var div = document.createElement("div");
+            let car = item.car ? item.car : item;
+            let div = document.createElement("div");
             div.classList.add("car-card-small");
 
-            var imgSrc = "http://127.0.0.1:8000/media/cars/photos/default-car.jpg";
+            let imgSrc = "http://127.0.0.1:8000/media/cars/photos/default-car.jpg";
             if (car.photos && car.photos.length > 0) {
                 imgSrc = car.photos[0].startsWith('http') ? car.photos[0] : "http://127.0.0.1:8000" + car.photos[0];
             } else if (car.image) {
@@ -128,16 +128,16 @@ document.addEventListener("DOMContentLoaded", function() {
                 '<p>Price/day: ' + car.price + '</p>' +
                 (isRental ? '<p>Pickup: ' + item.pickup_date + '</p><p>Days: ' + item.days + '</p><p>Total: ' + item.total_price + '</p>' : '');
 
-            var heartEl = div.querySelector(".heart");
+            let heartEl = div.querySelector(".heart");
             heartEl.addEventListener("click", async function(e) {
                 e.preventDefault();
                 try {
-                    var res = await fetch("http://127.0.0.1:8000/cars/" + car.id + "/like/", {
+                    let res = await fetch("http://127.0.0.1:8000/cars/" + car.id + "/like/", {
                         method: "POST",
                         headers: { "Authorization": "Bearer " + accessToken }
                     });
                     if (res.ok) {
-                        var data = await res.json();
+                        let data = await res.json();
                         if (data.message === "Car liked!") heartEl.classList.add("liked");
                         else if (data.message === "Car unliked.") heartEl.classList.remove("liked");
                     }
